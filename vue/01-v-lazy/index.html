@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Vue 3 懒加载 分离版</title>
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <!-- 1. 引入写好的指令文件 -->
+  <script src="./v-lazy.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background: #f5f5f5;
+    }
+
+    .header {
+      position: sticky;
+      top: 0;
+      background: #fff;
+      padding: 15px;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      z-index: 10;
+    }
+
+    .list {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+      padding: 10px 15px;
+      background: #fafafa;
+      border-bottom: 1px solid #eee;
+      font-weight: bold;
+    }
+
+    .lazy-img {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      display: block;
+      background-color: #eee;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="app">
+    <div class="header">
+      <h2>纯 JS 版 v-lazy (指令已分离)</h2>
+    </div>
+    <div class="list">
+      <div v-for="(item, index) in list" :key="item.id" class="card">
+        <div class="card-header">图片 {{ index + 1 }}</div>
+        <img v-lazy="{ src: item.url }" class="lazy-img" />
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const { createApp, reactive } = Vue;
+
+    // 2. 直接使用全局的 vLazy，不需要再手写一堆逻辑了
+    const app = createApp({
+      setup() {
+        const list = reactive(Array.from({ length: 50 }, (_, i) => ({
+          id: i,
+          url: i === 4 ? 'https://invalid-url.com/test.jpg' : `https://picsum.photos/600/400?random=${i}`
+        })));
+        return { list };
+      }
+    });
+
+    // 注册指令
+    app.directive('lazy', vLazy);
+    app.mount('#app');
+  </script>
+</body>
+
+</html>
